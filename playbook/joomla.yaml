@@ -1,0 +1,5 @@
+- name: Install joomla with postgresql db
+  hosts: joomla
+  become: yes
+  roles:
+   - joomla

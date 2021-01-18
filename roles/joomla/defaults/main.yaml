@@ -1,0 +1,9 @@
+joomla_host: "ip_address_joomla"
+postgresql_host: "ip_address_postgresql"
+local_network: "local_network" #example 192.168.0.0/24
+nginx_port: "80"
+joomla_db_name: "joomla"
+joomla_db_password: "joomla"
+joomla_db_user: "joomla"
+domain_name: "domain_name"
+root_directory: "/usr/share/nginx/html"

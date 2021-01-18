@@ -1,0 +1,75 @@
+---
+- name: Install epel-release
+  yum:
+    name: epel-release
+- name: Install remi-release
+  yum:
+    name: https://rpms.remirepo.net/enterprise/remi-release-7.rpm
+    state: present
+- name: Add remi-php73
+  yum_repository:
+    name: remi-php73
+    description: Remi's PHP 7.3RPM repository for Enterprise Linux $releasever - $basearch
+    mirrorlist: http://rpms.remirepo.net/enterprise/$releasever/php73/mirror
+    enabled: yes
+    gpgcheck: 1
+    gpgkey: http://rpms.remirepo.net/RPM-GPG-KEY-remi
+- name: Install requirement packeges
+  yum:
+    name:
+      - nginx
+      - php-fpm
+      - php-cli
+      - php-gd
+      - php-opcache
+      - php-json
+      - php-mcrypt
+      - php-xml
+      - php-curl
+      - php-pgsql
+      - wget
+      - unzip
+- name: Disable SELinux
+  selinux:
+    state: disabled
+- name: Copy nginx config file
+  template:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+  loop:
+    - { src: "nginx.conf.j2", dest: "/etc/nginx/nginx.conf"}
+    - { src: "joomla.conf.j2", dest: "/etc/nginx/conf.d/joomla.conf"}
+- name: Set user and group to php-fpm
+  lineinfile:
+    path: /etc/php-fpm.d/www.conf
+    regexp: "^{{ item.var }}"
+    line: "{{ item.value }}"
+  loop:
+    - { var: "user = apache", value: "user = nginx" }
+    - { var: "group = apache", value: "group = nginx" }
+- name: Download joomla 3.9.24
+  get_url:
+    url: https://downloads.joomla.org/ru/cms/joomla3/3-9-24/Joomla_3-9-24-Stable-Full_Package.zip?format=zip
+    dest: "{{ root_directory }}/joomla.zip"
+- name: Extract joomla archive
+  unarchive:
+    src: "{{ root_directory }}/joomla.zip"
+    dest: "{{ root_directory }}"
+    remote_src: yes
+    owner: nginx
+    group: nginx
+
+- name: Change work directory owner
+  file:
+    path: "{{ item.path }}"
+    state: directory
+    recurse: yes
+    owner: "{{ item.owner }}"
+    group: "{{ item.group }}"
+  loop:
+    - {path: "{{ root_directory }}", owner: "nginx", group: "nginx" }
+    - {path: "/var/lib/php/", owner: "root", group: "nginx" }
+
+  notify: 
+    - restart php-fpm
+    - restart nginx

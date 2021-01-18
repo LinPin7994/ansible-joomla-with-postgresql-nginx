@@ -1,0 +1,7 @@
+---
+- import_tasks: install_postgresql.yaml
+  when: inventory_hostname == "{{ postgresql_host }}"
+  tags: postgresql
+- import_tasks: install_joomla.yaml
+  when: inventory_hostname == "{{ joomla_host }}"
+  tags: joomla
