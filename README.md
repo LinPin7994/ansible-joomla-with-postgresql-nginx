@@ -1,5 +1,5 @@
 # ansible-joomla-with-postgresql-nginx
-1. Edit group_vars file
+1. Edit group_vars file and host
 2. Edit roles/joomla/defaults/main.yaml
 3. Run ansible-playbook playbook/joomla.yaml
 
